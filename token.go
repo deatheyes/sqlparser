@@ -562,7 +562,7 @@ func (tkn *Tokenizer) Scan() (int, []byte) {
 			switch tkn.lastChar {
 			case '>':
 				tkn.next()
-				return NE, nil
+				return NULL_SAFE_NOTEQUAL, nil
 			case '<':
 				tkn.next()
 				return SHIFT_LEFT, nil

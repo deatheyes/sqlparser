@@ -133,7 +133,7 @@ func forceEOF(yylex interface{}) {
 %left <bytes> AND
 %right <bytes> NOT '!'
 %left <bytes> BETWEEN CASE WHEN THEN ELSE END
-%left <bytes> '=' '<' '>' LE GE NE NULL_SAFE_EQUAL IS LIKE REGEXP IN
+%left <bytes> '=' '<' '>' LE GE NE NULL_SAFE_EQUAL IS LIKE REGEXP IN NULL_SAFE_NOTEQUAL
 %left <bytes> '|'
 %left <bytes> '&'
 %left <bytes> SHIFT_LEFT SHIFT_RIGHT
@@ -2047,6 +2047,10 @@ compare:
   {
     $$ = NullSafeEqualStr
   }
+| NULL_SAFE_NOTEQUAL
+ {
+    $$ = NullSafeNotEqualStr
+ }
 
 like_escape_opt:
   {
