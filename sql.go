@@ -4627,13 +4627,13 @@ yydefault:
 		yyDollar = yyS[yypt-2 : yypt+1]
 		//line sql.y:1811
 		{
-			yyVAL.str = JoinStr
+			yyVAL.str = InnerJoinStr
 		}
 	case 338:
 		yyDollar = yyS[yypt-2 : yypt+1]
 		//line sql.y:1815
 		{
-			yyVAL.str = JoinStr
+			yyVAL.str = CrossJoinStr
 		}
 	case 339:
 		yyDollar = yyS[yypt-1 : yypt+1]

@@ -1801,6 +1801,8 @@ type JoinTableExpr struct {
 // JoinTableExpr.Join
 const (
 	JoinStr             = "join"
+	InnerJoinStr        = "inner join"
+	CrossJoinStr        = "cross join"
 	StraightJoinStr     = "straight_join"
 	LeftJoinStr         = "left join"
 	RightJoinStr        = "right join"

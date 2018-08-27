@@ -1809,11 +1809,11 @@ inner_join:
   }
 | INNER JOIN
   {
-    $$ = JoinStr
+    $$ = InnerJoinStr
   }
 | CROSS JOIN
   {
-    $$ = JoinStr
+    $$ = CrossJoinStr
   }
 
 straight_join:
