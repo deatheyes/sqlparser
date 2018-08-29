@@ -2492,9 +2492,29 @@ convert_type:
   {
     $$ = &ConvertType{Type: string($1)}
   }
-| TIMESTAMP
+| TIMESTAMP length_opt
  {
-    $$ = &ConvertType{Type: string($1)}
+    $$ = &ConvertType{Type: string($1), Length: $2}
+ }
+| INT length_opt
+ {
+    $$ = &ConvertType{Type: string($1), Length: $2}
+ }
+| TINYINT length_opt
+ {
+    $$ = &ConvertType{Type: string($1), Length: $2}
+ }
+| SMALLINT length_opt
+ {
+    $$ = &ConvertType{Type: string($1), Length: $2}
+ }
+| MEDIUMINT length_opt
+ {
+    $$ = &ConvertType{Type: string($1), Length: $2}
+ }
+| BIGINT length_opt
+ {
+    $$ = &ConvertType{Type: string($1), Length: $2}
  }
 
 expression_opt:
