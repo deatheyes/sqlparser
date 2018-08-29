@@ -1695,6 +1695,10 @@ table_factor:
   {
     $$ = $1
   }
+| subquery
+  {
+    $$ = &AliasedTableExpr{Expr:$1} 
+  }
 | subquery as_opt table_id
   {
     $$ = &AliasedTableExpr{Expr:$1, As: $3}
