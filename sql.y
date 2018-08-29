@@ -83,6 +83,7 @@ func forceEOF(yylex interface{}) {
   when          *When
   orderBy       OrderBy
   order         *Order
+  partitionBy   PartitionBy
   limit         *Limit
   updateExprs   UpdateExprs
   setExprs      SetExprs
@@ -188,6 +189,7 @@ func forceEOF(yylex interface{}) {
 %token <bytes> CONVERT CAST
 %token <bytes> SUBSTR SUBSTRING
 %token <bytes> GROUP_CONCAT SEPARATOR
+%token <bytes> ROW_NUMBER OVER
 
 // Match
 %token <bytes> MATCH AGAINST BOOLEAN LANGUAGE WITH QUERY EXPANSION
@@ -240,6 +242,7 @@ func forceEOF(yylex interface{}) {
 %type <orderBy> order_by_opt order_list
 %type <order> order
 %type <str> asc_desc_opt
+%type <partitionBy> partition_by_opt partition_by_list
 %type <limit> limit_opt
 %type <str> lock_opt
 %type <columns> ins_column_list column_list
@@ -2309,6 +2312,29 @@ function_call_keyword:
 | VALUES openb column_name closeb
   {
     $$ = &ValuesFuncExpr{Name: $3}
+  }
+| ROW_NUMBER openb closeb OVER openb partition_by_opt ORDER BY order_list closeb
+  {
+    $$ = &RowNumberOverExpr{ PartitionBy: $6, OrderBy: $9}
+  }
+
+partition_by_opt:
+  {
+    $$ = nil
+  }
+| PARTITION BY partition_by_list
+  {
+    $$ = $3
+  }
+
+partition_by_list:
+  expression
+  {
+    $$ = PartitionBy{$1}
+  }
+| partition_by_list ',' expression
+  {
+    $$ = append($1, $3)
   }
 
 /*
