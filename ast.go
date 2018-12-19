@@ -223,6 +223,8 @@ func (*Commit) iStatement()     {}
 func (*Rollback) iStatement()   {}
 func (*OtherRead) iStatement()  {}
 func (*OtherAdmin) iStatement() {}
+func (*Prepare) iStatement()    {}
+func (*Execute) iStatement()    {}
 
 // ParenSelect can actually not be a top level statement,
 // but we have to allow it because it's a requirement
@@ -587,6 +589,59 @@ func (node *Delete) walkSubtree(visit Visit) error {
 		node.OrderBy,
 		node.Limit,
 	)
+}
+
+// Prepare represents a PREPARE statement.
+type Prepare struct {
+	Name ColIdent
+	Stmt *SQLVal
+}
+
+// Format formats the node.
+func (node *Prepare) Format(buf *TrackedBuffer) {
+	buf.Myprintf("prepare %s from %v", node.Name.String(), node.Stmt)
+}
+
+func (node *Prepare) walkSubtree(visit Visit) error {
+	if node == nil {
+		return nil
+	}
+	return Walk(visit, node.Name, node.Stmt)
+}
+
+// Execute represents a EXECUTE statement.
+type Execute struct {
+	Name   ColIdent
+	Params []ColIdent
+}
+
+// Format formats the node.
+func (node *Execute) Format(buf *TrackedBuffer) {
+	buf.Myprintf("execute %s", node.Name.String())
+	if len(node.Params) > 0 {
+		prefix := " using "
+		for _, v := range node.Params {
+			buf.Myprintf("%s%s", prefix, v.String())
+			prefix = ", "
+		}
+	}
+}
+
+func (node *Execute) walkSubtree(visit Visit) error {
+	if node == nil {
+		return nil
+	}
+
+	if err := Walk(visit, node.Name); err != nil {
+		return err
+	}
+
+	for _, n := range node.Params {
+		if err := Walk(visit, n); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Set represents a SET statement.
@@ -3086,7 +3141,7 @@ func (node PartitionBy) Format(buf *TrackedBuffer) {
 	for _, n := range node {
 		buf.Myprintf("%s%v", prefix, n)
 		prefix = ", "
-        }
+	}
 }
 
 func (node PartitionBy) walkSubtree(visit Visit) error {

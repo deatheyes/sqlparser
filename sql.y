@@ -115,7 +115,7 @@ func forceEOF(yylex interface{}) {
 
 %token LEX_ERROR
 %left <bytes> UNION
-%token <bytes> SELECT STREAM INSERT UPDATE DELETE FROM WHERE GROUP HAVING ORDER BY LIMIT OFFSET FOR
+%token <bytes> SELECT STREAM INSERT UPDATE DELETE FROM WHERE GROUP HAVING ORDER BY LIMIT OFFSET FOR PREPARE EXECUTE
 %token <bytes> ALL DISTINCT AS EXISTS ASC DESC INTO DUPLICATE KEY DEFAULT SET LOCK KEYS
 %token <bytes> VALUES LAST_INSERT_ID
 %token <bytes> NEXT VALUE SHARE MODE
@@ -199,7 +199,7 @@ func forceEOF(yylex interface{}) {
 
 %type <statement> command
 %type <selStmt> select_statement base_select union_lhs union_rhs
-%type <statement> stream_statement insert_statement update_statement delete_statement set_statement
+%type <statement> stream_statement insert_statement update_statement delete_statement set_statement prepare_statement execute_statement
 %type <statement> create_statement alter_statement rename_statement drop_statement truncate_statement
 %type <ddl> create_table_prefix
 %type <statement> analyze_statement show_statement use_statement other_statement
@@ -319,6 +319,8 @@ command:
 | insert_statement
 | update_statement
 | delete_statement
+| prepare_statement
+| execute_statement
 | set_statement
 | create_statement
 | alter_statement
@@ -441,6 +443,26 @@ delete_statement:
 | DELETE comment_opt table_name_list from_or_using table_references where_expression_opt
   {
     $$ = &Delete{Comments: Comments($2), Targets: $3, TableExprs: $5, Where: NewWhere(WhereStr, $6)}
+  }
+
+prepare_statement:
+  PREPARE ID FROM STRING
+  {
+    $$ = &Prepare{Name: NewColIdent(string($2)), Stmt: NewStrVal($4)}
+  }
+| PREPARE ID FROM VALUE_ARG
+  {
+    $$ = &Prepare{Name: NewColIdent(string($2)), Stmt: NewValArg($4)}
+  }
+
+execute_statement:
+  EXECUTE ID
+  {
+    $$ = &Execute{Name: NewColIdent(string($2))}
+  }
+| EXECUTE ID USING column_list
+  {
+    $$ = &Execute{Name: NewColIdent(string($2)), Params: $4}
   }
 
 from_or_using:
@@ -3080,6 +3102,8 @@ reserved_keyword:
 | VALUES
 | WHEN
 | WHERE
+| PREPARE
+| EXECUTE
 
 /*
   These are non-reserved Vitess, because they don't cause conflicts in the grammar.

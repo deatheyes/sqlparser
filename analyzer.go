@@ -46,6 +46,8 @@ const (
 	StmtOther
 	StmtUnknown
 	StmtComment
+	StmtPrepare
+	StmtExecute
 )
 
 // Preview analyzes the beginning of the query using a simpler and faster
@@ -71,6 +73,10 @@ func Preview(sql string) int {
 		return StmtReplace
 	case "update":
 		return StmtUpdate
+	case "prepare":
+		return StmtPrepare
+	case "execute":
+		return StmtExecute
 	case "delete":
 		return StmtDelete
 	}
@@ -137,6 +143,10 @@ func StmtType(stmtType int) string {
 		return "USE"
 	case StmtOther:
 		return "OTHER"
+	case StmtPrepare:
+		return "PREPARE"
+	case StmtExecute:
+		return "EXECUTE"
 	default:
 		return "UNKNOWN"
 	}
