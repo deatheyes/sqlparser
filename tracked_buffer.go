@@ -36,6 +36,11 @@ type TrackedBuffer struct {
 	*bytes.Buffer
 	bindLocations []bindLocation
 	nodeFormatter NodeFormatter
+        vPrefix       string
+        fPrefix       string
+        Vars          map[string]string
+        vCount        int
+        fCount        int
 }
 
 // NewTrackedBuffer creates a new TrackedBuffer.
@@ -43,7 +48,26 @@ func NewTrackedBuffer(nodeFormatter NodeFormatter) *TrackedBuffer {
 	return &TrackedBuffer{
 		Buffer:        new(bytes.Buffer),
 		nodeFormatter: nodeFormatter,
+		Vars:          make(map[string]string),
+                vPrefix:       ":v",
+                fPrefix:       ":f",
+                vCount:        1,
+                fCount:        1,
 	}
+}
+
+// VarArg create variable id
+func (buf *TrackedBuffer) VarArg() string {
+	name := fmt.Sprintf("%s%d", buf.vPrefix, buf.vCount)
+	buf.vCount++
+	return name
+}
+
+// FuncArg create function id
+func (buf *TrackedBuffer) FuncArg() string {
+	name := fmt.Sprintf("%s%d", buf.fPrefix, buf.fCount)
+	buf.fCount++
+	return name
 }
 
 // WriteNode function, initiates the writing of a single SQLNode tree by passing
